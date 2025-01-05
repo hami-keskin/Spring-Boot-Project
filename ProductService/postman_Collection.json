@@ -1,0 +1,266 @@
+{
+    "info": {
+        "name": "Catalog, Product, Stock API Collection",
+        "_postman_id": "12345678-1234-1234-1234-123456789012",
+        "description": "API endpoints for Catalog, Product, and Stock services",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Get Catalog by ID",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8080/api/catalogs/1",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8080",
+                    "path": ["api", "catalogs", "1"]
+                }
+            }
+        },
+        {
+            "name": "Create Catalog",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"name\": \"New Catalog\",\n  \"description\": \"Catalog Description\",\n  \"status\": true\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:8080/api/catalogs",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8080",
+                    "path": ["api", "catalogs"]
+                }
+            }
+        },
+        {
+            "name": "Update Catalog",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"id\": 1,\n  \"name\": \"Updated Catalog\",\n  \"description\": \"Updated Description\",\n  \"status\": true\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:8080/api/catalogs/1",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8080",
+                    "path": ["api", "catalogs", "1"]
+                }
+            }
+        },
+        {
+            "name": "Delete Catalog",
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8080/api/catalogs/1",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8080",
+                    "path": ["api", "catalogs", "1"]
+                }
+            }
+        },
+        {
+            "name": "Get Product by ID",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8080/api/products/1",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8080",
+                    "path": ["api", "products", "1"]
+                }
+            }
+        },
+        {
+            "name": "Create Product",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"name\": \"New Product\",\n  \"description\": \"Product Description\",\n  \"status\": true,\n  \"price\": 10.0,\n  \"catalogId\": 1\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:8080/api/products",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8080",
+                    "path": ["api", "products"]
+                }
+            }
+        },
+        {
+            "name": "Update Product",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"id\": 1,\n  \"name\": \"Updated Product\",\n  \"description\": \"Updated Description\",\n  \"status\": true,\n  \"price\": 20.0,\n  \"catalogId\": 1\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:8080/api/products/1",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8080",
+                    "path": ["api", "products", "1"]
+                }
+            }
+        },
+        {
+            "name": "Delete Product",
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8080/api/products/1",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8080",
+                    "path": ["api", "products", "1"]
+                }
+            }
+        },
+        {
+            "name": "Get Products by Catalog ID",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8080/api/products/catalog/1",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8080",
+                    "path": ["api", "products", "catalog", "1"]
+                }
+            }
+        },
+        {
+            "name": "Get Stock by ID",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8080/api/stocks/1",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8080",
+                    "path": ["api", "stocks", "1"]
+                }
+            }
+        },
+        {
+            "name": "Create Stock",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"quantity\": 100,\n  \"productId\": 1\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:8080/api/stocks",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8080",
+                    "path": ["api", "stocks"]
+                }
+            }
+        },
+        {
+            "name": "Update Stock",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"id\": 1,\n  \"quantity\": 200,\n  \"productId\": 1\n}"
+                },
+                "url": {
+                    "raw": "http://localhost:8080/api/stocks/1",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8080",
+                    "path": ["api", "stocks", "1"]
+                }
+            }
+        },
+        {
+            "name": "Delete Stock",
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8080/api/stocks/1",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8080",
+                    "path": ["api", "stocks", "1"]
+                }
+            }
+        },
+        {
+            "name": "Reduce Stock",
+            "request": {
+                "method": "PUT",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8080/api/stocks/1/reduce?quantity=10",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8080",
+                    "path": ["api", "stocks", "1", "reduce"],
+                    "query": [
+                        {
+                            "key": "quantity",
+                            "value": "10"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

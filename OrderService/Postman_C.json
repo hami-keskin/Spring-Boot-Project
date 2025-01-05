@@ -1,0 +1,158 @@
+{
+  "info": {
+    "name": "Order and OrderItem API Collection",
+    "_postman_id": "abcdef12-3456-7890-abcd-ef1234567890",
+    "description": "API endpoints for Order and OrderItem services",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Order by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8090/api/orders/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8090",
+          "path": ["api", "orders", "1"]
+        }
+      }
+    },
+    {
+      "name": "Create Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderDate\": \"2024-08-02T00:00:00\",\n  \"totalAmount\": 0.0,\n  \"status\": 1\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8090/api/orders",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8090",
+          "path": ["api", "orders"]
+        }
+      }
+    },
+    {
+      "name": "Update Order",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderDate\": \"2024-08-02T00:00:00\",\n  \"totalAmount\": 100.0,\n  \"status\": 2\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8090/api/orders/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8090",
+          "path": ["api", "orders", "1"]
+        }
+      }
+    },
+    {
+      "name": "Delete Order",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8090/api/orders/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8090",
+          "path": ["api", "orders", "1"]
+        }
+      }
+    },
+    {
+      "name": "Add Order Item",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"productId\": 2,\n  \"quantity\": 3\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8090/api/orders/1/items",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8090",
+          "path": ["api", "orders", "1", "items"]
+        }
+      }
+    },
+    {
+      "name": "Update Order Item",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"quantity\": 5\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8090/api/orders/1/items/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8090",
+          "path": ["api", "orders", "1", "items", "1"]
+        }
+      }
+    },
+    {
+      "name": "Delete Order Item",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8090/api/orders/1/items/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8090",
+          "path": ["api", "orders", "1", "items", "1"]
+        }
+      }
+    },
+    {
+      "name": "Get Order Items by Order ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8090/api/orders/1/items",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8090",
+          "path": ["api", "orders", "1", "items"]
+        }
+      }
+    }
+  ]
+}
