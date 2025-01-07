@@ -7,185 +7,162 @@ import com.example.OrderService.dto.OrderItemDto;
 import com.example.OrderService.entity.Order;
 import com.example.OrderService.entity.OrderItem;
 import com.example.OrderService.exception.RecordNotFoundException;
-import com.example.OrderService.mapper.OrderItemMapper;
-import com.example.OrderService.mapper.OrderMapper;
 import com.example.OrderService.repository.OrderItemRepository;
+import com.example.OrderService.repository.OrderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@Transactional
 public class OrderItemServiceTest {
 
+    @Autowired
     private OrderItemService orderItemService;
+
+    @Autowired
     private OrderItemRepository orderItemRepository;
-    private OrderItemMapper orderItemMapper;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @MockBean
     private ProductServiceClient productServiceClient;
-    private OrderMapper orderMapper;
+
+    private OrderDto orderDto;
+    private OrderItemDto orderItemDto;
+    private Order order;
+    private ProductDto productDto;
 
     @BeforeEach
     public void setUp() {
-        orderItemRepository = Mockito.mock(OrderItemRepository.class);
-        orderItemMapper = Mockito.mock(OrderItemMapper.class);
-        productServiceClient = Mockito.mock(ProductServiceClient.class);
-        orderMapper = Mockito.mock(OrderMapper.class);
+        // Test verilerini hazırla
+        orderDto = new OrderDto();
+        orderDto.setId(1);
 
-        // Doğrudan instance oluşturmak yerine mock yaparak inject ediyoruz
-        orderItemService = Mockito.spy(new OrderItemService(orderItemRepository, orderItemMapper, orderMapper, productServiceClient));
-        Mockito.doReturn(orderItemService).when(orderItemService).getSelf();
+        orderItemDto = new OrderItemDto();
+        orderItemDto.setProductId(101);
+        orderItemDto.setQuantity(2);
+
+        order = new Order();
+        order.setId(1);
+        order.setTotalAmount(0.0);
+        order.setOrderItems(Collections.emptyList());
+
+        productDto = new ProductDto();
+        productDto.setId(101);
+        productDto.setPrice(50.0);
+
+        // Order'ı repository'e kaydet
+        orderRepository.save(order);
+
+        // ProductServiceClient mock'u
+        when(productServiceClient.getProductById(any(Integer.class))).thenReturn(productDto);
     }
-
 
     @Test
     public void testAddOrderItem() {
-        Order order = new Order();
-        order.setId(1);
-        order.setOrderItems(new ArrayList<>());
-        OrderDto orderDto = new OrderDto();
-        orderDto.setId(1);
+        // OrderItem ekle
+        OrderItemDto result = orderItemService.addOrderItem(orderDto, orderItemDto);
 
-        OrderItem orderItem = new OrderItem();
-        orderItem.setProductId(2);
-        orderItem.setQuantity(3);
-        orderItem.setOrder(order);
+        // Sonuçları doğrula
+        assertNotNull(result);
+        assertEquals(orderItemDto.getProductId(), result.getProductId());
+        assertEquals(orderItemDto.getQuantity(), result.getQuantity());
+        assertEquals(100.0, result.getTotalAmount()); // 2 * 50.0 = 100.0
 
-        when(orderItemMapper.toEntity(any(OrderItemDto.class))).thenReturn(orderItem);
-        when(orderItemRepository.save(any(OrderItem.class))).thenReturn(orderItem);
-        when(orderItemMapper.toDto(any(OrderItem.class))).thenReturn(new OrderItemDto());
-        when(orderMapper.toEntity(any(OrderDto.class))).thenReturn(order);
-
-        ProductDto productDto = new ProductDto();
-        productDto.setPrice(100.0);
-        when(productServiceClient.getProductById(2)).thenReturn(productDto);
-
-        OrderItemDto orderItemDto = new OrderItemDto();
-        orderItemDto.setProductId(2);
-        orderItemDto.setQuantity(3);
-        OrderItemDto createdOrderItem = orderItemService.addOrderItem(orderDto, orderItemDto);
-
-        assertThat(createdOrderItem).isNotNull();
-        verify(orderItemRepository, times(1)).save(any(OrderItem.class));
+        // Order'ın totalAmount'unun güncellendiğini doğrula
+        Order updatedOrder = orderRepository.findById(orderDto.getId()).orElseThrow();
+        assertEquals(100.0, updatedOrder.getTotalAmount());
     }
 
     @Test
     public void testUpdateOrderItem() {
-        Order order = new Order();
-        order.setId(1);
-        order.setOrderItems(new ArrayList<>());
-        OrderDto orderDto = new OrderDto();
-        orderDto.setId(1);
+        // Önce bir OrderItem ekle
+        OrderItemDto addedItem = orderItemService.addOrderItem(orderDto, orderItemDto);
 
-        OrderItem orderItem = new OrderItem();
-        orderItem.setId(1);
-        orderItem.setProductId(2);
-        orderItem.setQuantity(5);
-        orderItem.setOrder(order);
-        order.getOrderItems().add(orderItem);
+        // OrderItem'ı güncelle
+        OrderItemDto updatedItemDto = new OrderItemDto();
+        updatedItemDto.setProductId(101);
+        updatedItemDto.setQuantity(3);
 
-        when(orderItemRepository.findById(1)).thenReturn(Optional.of(orderItem));
-        when(orderItemRepository.save(any(OrderItem.class))).thenReturn(orderItem);
-        when(orderItemMapper.toDto(any(OrderItem.class))).thenReturn(new OrderItemDto());
-        when(orderMapper.toEntity(any(OrderDto.class))).thenReturn(order);
+        OrderItemDto result = orderItemService.updateOrderItem(orderDto, addedItem.getId(), updatedItemDto);
 
-        ProductDto productDto = new ProductDto();
-        productDto.setPrice(100.0);
-        when(productServiceClient.getProductById(2)).thenReturn(productDto);
+        // Sonuçları doğrula
+        assertNotNull(result);
+        assertEquals(updatedItemDto.getQuantity(), result.getQuantity());
+        assertEquals(150.0, result.getTotalAmount()); // 3 * 50.0 = 150.0
 
-        OrderItemDto orderItemDto = new OrderItemDto();
-        orderItemDto.setQuantity(5);
-        OrderItemDto updatedOrderItem = orderItemService.updateOrderItem(orderDto, 1, orderItemDto);
-
-        assertThat(updatedOrderItem).isNotNull();
-        verify(orderItemRepository, times(1)).findById(1);
-        verify(orderItemRepository, times(1)).save(any(OrderItem.class));
+        // Order'ın totalAmount'unun güncellendiğini doğrula
+        Order updatedOrder = orderRepository.findById(orderDto.getId()).orElseThrow();
+        assertEquals(150.0, updatedOrder.getTotalAmount());
     }
 
     @Test
     public void testDeleteOrderItem() {
-        Order order = new Order();
-        order.setId(1);
-        order.setOrderItems(new ArrayList<>());
-        OrderDto orderDto = new OrderDto();
-        orderDto.setId(1);
+        // Önce bir OrderItem ekle
+        OrderItemDto addedItem = orderItemService.addOrderItem(orderDto, orderItemDto);
 
-        OrderItem orderItem = new OrderItem();
-        orderItem.setId(1);
-        orderItem.setOrder(order);
-        order.getOrderItems().add(orderItem);
+        // OrderItem'ı sil
+        orderItemService.deleteOrderItem(orderDto, addedItem.getId());
 
-        when(orderItemRepository.findById(1)).thenReturn(Optional.of(orderItem));
-        doNothing().when(orderItemRepository).delete(any(OrderItem.class));
-        when(orderMapper.toEntity(any(OrderDto.class))).thenReturn(order);
+        // OrderItem'ın silindiğini doğrula
+        assertFalse(orderItemRepository.findById(addedItem.getId()).isPresent());
 
-        orderItemService.deleteOrderItem(orderDto, 1);
-
-        verify(orderItemRepository, times(1)).findById(1);
-        verify(orderItemRepository, times(1)).delete(any(OrderItem.class));
+        // Order'ın totalAmount'unun güncellendiğini doğrula
+        Order updatedOrder = orderRepository.findById(orderDto.getId()).orElseThrow();
+        assertEquals(0.0, updatedOrder.getTotalAmount());
     }
 
     @Test
     public void testGetOrderItemsByOrderId() {
-        Order order = new Order();
-        order.setId(1);
-        order.setOrderItems(Collections.singletonList(new OrderItem()));
-        OrderDto orderDto = new OrderDto();
-        orderDto.setId(1);
+        // Önce bir OrderItem ekle
+        OrderItemDto addedItem = orderItemService.addOrderItem(orderDto, orderItemDto);
 
-        when(orderItemMapper.toDto(any(OrderItem.class))).thenReturn(new OrderItemDto());
-        when(orderMapper.toEntity(any(OrderDto.class))).thenReturn(order);
+        // OrderItem'ları getir
+        List<OrderItemDto> result = orderItemService.getOrderItemsByOrderId(orderDto);
 
-        List<OrderItemDto> orderItems = orderItemService.getOrderItemsByOrderId(orderDto);
-
-        assertThat(orderItems).isNotEmpty();
+        // Sonuçları doğrula
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(addedItem.getId(), result.get(0).getId());
     }
 
     @Test
-    public void testAddOrderItemWithNullOrderDto() {
-        OrderItemDto orderItemDto = new OrderItemDto();
-        orderItemDto.setProductId(2);
-        orderItemDto.setQuantity(3);
-
-        assertThrows(NullPointerException.class, () -> {
-            orderItemService.addOrderItem(null, orderItemDto);
-        });
-    }
-
-    @Test
-    public void testHandleQuantityZero() {
-        OrderDto orderDto = new OrderDto();
-        orderDto.setId(1);
-
-        OrderItemDto orderItemDto = new OrderItemDto();
-        orderItemDto.setQuantity(0);  // Miktar 0 veya daha düşük
-
-        when(orderItemRepository.findById(1)).thenReturn(Optional.empty()); // findById çağrısı boş Optional dönecek
-
-        // Beklenen istisnanın fırlatıldığını kontrol et
-        assertThrows(RecordNotFoundException.class, () -> {
-            orderItemService.updateOrderItem(orderDto, 1, orderItemDto);
-        });
-    }
-
-
-
-    @Test
-    public void testFindOrderItemByIdNotFound() {
-        when(orderItemRepository.findById(1)).thenReturn(Optional.empty());
+    public void testAddOrderItem_OrderNotFound() {
+        // Var olmayan bir Order ID'si ile OrderItem eklemeye çalış
+        OrderDto nonExistentOrderDto = new OrderDto();
+        nonExistentOrderDto.setId(999);
 
         assertThrows(RecordNotFoundException.class, () -> {
-            orderItemService.findOrderItemById(1);
+            orderItemService.addOrderItem(nonExistentOrderDto, orderItemDto);
         });
     }
 
+    @Test
+    public void testUpdateOrderItem_OrderItemNotFound() {
+        // Var olmayan bir OrderItem ID'si ile güncelleme yapmaya çalış
+        assertThrows(RecordNotFoundException.class, () -> {
+            orderItemService.updateOrderItem(orderDto, 999, orderItemDto);
+        });
+    }
+
+    @Test
+    public void testDeleteOrderItem_OrderItemNotFound() {
+        // Var olmayan bir OrderItem ID'si ile silme işlemi yapmaya çalış
+        assertThrows(RecordNotFoundException.class, () -> {
+            orderItemService.deleteOrderItem(orderDto, 999);
+        });
+    }
 }

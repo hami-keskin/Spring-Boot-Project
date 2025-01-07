@@ -7,11 +7,11 @@ import com.example.OrderService.dto.OrderItemDto;
 import com.example.OrderService.entity.Order;
 import com.example.OrderService.entity.OrderItem;
 import com.example.OrderService.exception.RecordNotFoundException;
-import com.example.OrderService.mapper.OrderItemMapper;
-import com.example.OrderService.mapper.OrderMapper;
 import com.example.OrderService.repository.OrderItemRepository;
-import lombok.RequiredArgsConstructor;
+import com.example.OrderService.repository.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,38 +20,49 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class OrderItemService {
-    private final OrderItemRepository orderItemRepository;
-    private final OrderItemMapper orderItemMapper;
-    private final OrderMapper orderMapper;
-    private final ProductServiceClient productServiceClient;
 
-    // Artık self-injection'a gerek yok, direkt bu sınıf üzerinden çağıracağız
-    protected OrderItemService getSelf() {
-        return this;
-    }
+    @Autowired
+    private OrderItemRepository orderItemRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private ProductServiceClient productServiceClient;
 
     @Transactional
     public OrderItemDto addOrderItem(OrderDto orderDto, OrderItemDto orderItemDto) {
         log.info("Adding order item to order with id: {}", orderDto.getId());
-        Order order = orderMapper.toEntity(orderDto);  // DTO'dan entity'ye dönüşüm
+
+        // Order'ı repository üzerinden çek
+        Order order = orderRepository.findById(orderDto.getId())
+                .orElseThrow(() -> new RecordNotFoundException("Order not found with id: " + orderDto.getId()));
+
+        // OrderItem'ı oluştur veya güncelle
         OrderItem orderItem = findOrCreateOrderItem(order, orderItemDto);
         updateOrderTotalAmount(order, orderItem.getTotalAmount());
 
         orderItem = orderItemRepository.save(orderItem);
-        return orderItemMapper.toDto(orderItem);
+
+        // DTO'ya dönüştür ve döndür
+        OrderItemDto resultDto = new OrderItemDto();
+        BeanUtils.copyProperties(orderItem, resultDto);
+        return resultDto;
     }
 
     @Transactional
     public OrderItemDto updateOrderItem(OrderDto orderDto, Integer orderItemId, OrderItemDto orderItemDto) {
         log.info("Updating order item with id: {}", orderItemId);
-        Order order = orderMapper.toEntity(orderDto);  // DTO'dan entity'ye dönüşüm
-        OrderItem orderItem = findOrderItemById(orderItemId);
 
+        // Order'ı repository üzerinden çek
+        Order order = orderRepository.findById(orderDto.getId())
+                .orElseThrow(() -> new RecordNotFoundException("Order not found with id: " + orderDto.getId()));
+
+        // OrderItem'ı repository üzerinden çek
+        OrderItem orderItem = findOrderItemById(orderItemId);
         validateOrderItemBelongsToOrder(order, orderItem);
-        getSelf().handleQuantityZero(orderDto, orderItemDto, orderItemId);  // Self-invocation
 
         double oldTotalAmount = Optional.ofNullable(orderItem.getTotalAmount()).orElse(0.0);
         updateOrderItemDetails(orderItem, orderItemDto);
@@ -59,18 +70,25 @@ public class OrderItemService {
         updateOrderTotalAmount(order, orderItem.getTotalAmount() - oldTotalAmount);
         orderItem = orderItemRepository.save(orderItem);
 
-        return orderItemMapper.toDto(orderItem);
+        // DTO'ya dönüştür ve döndür
+        OrderItemDto resultDto = new OrderItemDto();
+        BeanUtils.copyProperties(orderItem, resultDto);
+        return resultDto;
     }
 
     @Transactional
     public void deleteOrderItem(OrderDto orderDto, Integer orderItemId) {
         log.info("Deleting order item with id: {}", orderItemId);
-        Order order = orderMapper.toEntity(orderDto);  // DTO'dan entity'ye dönüşüm
+
+        // Order'ı repository üzerinden çek
+        Order order = orderRepository.findById(orderDto.getId())
+                .orElseThrow(() -> new RecordNotFoundException("Order not found with id: " + orderDto.getId()));
+
+        // OrderItem'ı repository üzerinden çek
         OrderItem orderItem = findOrderItemById(orderItemId);
-
         validateOrderItemBelongsToOrder(order, orderItem);
-        updateOrderTotalAmount(order, -Optional.ofNullable(orderItem.getTotalAmount()).orElse(0.0));
 
+        updateOrderTotalAmount(order, -Optional.ofNullable(orderItem.getTotalAmount()).orElse(0.0));
         order.getOrderItems().remove(orderItem);
         orderItemRepository.delete(orderItem);
     }
@@ -78,13 +96,22 @@ public class OrderItemService {
     @Transactional(readOnly = true)
     public List<OrderItemDto> getOrderItemsByOrderId(OrderDto orderDto) {
         log.info("Getting order items for order with id: {}", orderDto.getId());
-        Order order = orderMapper.toEntity(orderDto);  // DTO'dan entity'ye dönüşüm
+
+        // Order'ı repository üzerinden çek
+        Order order = orderRepository.findById(orderDto.getId())
+                .orElseThrow(() -> new RecordNotFoundException("Order not found with id: " + orderDto.getId()));
+
+        // OrderItem'ları DTO'ya dönüştür ve döndür
         return order.getOrderItems().stream()
-                .map(orderItemMapper::toDto)
+                .map(orderItem -> {
+                    OrderItemDto dto = new OrderItemDto();
+                    BeanUtils.copyProperties(orderItem, dto);
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
-    OrderItem findOrderItemById(Integer orderItemId) {
+    private OrderItem findOrderItemById(Integer orderItemId) {
         log.info("Finding order item by id: {}", orderItemId);
         return orderItemRepository.findById(orderItemId)
                 .orElseThrow(() -> {
@@ -107,7 +134,8 @@ public class OrderItemService {
     }
 
     private OrderItem createNewOrderItem(Order order, OrderItemDto orderItemDto) {
-        OrderItem orderItem = orderItemMapper.toEntity(orderItemDto);
+        OrderItem orderItem = new OrderItem();
+        BeanUtils.copyProperties(orderItemDto, orderItem);
         updateOrderItemTotalAmount(orderItem);
         orderItem.setOrder(order);
         order.getOrderItems().add(orderItem);
@@ -132,12 +160,6 @@ public class OrderItemService {
     private void validateOrderItemBelongsToOrder(Order order, OrderItem orderItem) {
         if (!order.getOrderItems().contains(orderItem)) {
             throw new IllegalArgumentException("Order item does not belong to the specified order.");
-        }
-    }
-
-    private void handleQuantityZero(OrderDto orderDto, OrderItemDto orderItemDto, Integer orderItemId) {
-        if (orderItemDto.getQuantity() <= 0) {
-            getSelf().deleteOrderItem(orderDto, orderItemId);  // Self-invocation via injected dependency
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.OrderService.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,8 +11,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "orders") // Tablo adını değiştirdik
-@Data
-@NoArgsConstructor
+@Data // Getter, Setter, toString, equals ve hashCode oluşturur
+@NoArgsConstructor // Parametresiz constructor
+@AllArgsConstructor // Tüm alanlar için constructor
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

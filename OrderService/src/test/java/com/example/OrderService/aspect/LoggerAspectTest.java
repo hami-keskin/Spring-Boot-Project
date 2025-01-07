@@ -1,6 +1,5 @@
 package com.example.OrderService.aspect;
 
-import com.example.OrderService.exception.MethodExecutionException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +42,7 @@ public class LoggerAspectTest {
     }
 
     @Test
-    public void testLogRequestResponse_MethodExecutionException() throws Throwable {
+    public void testLogRequestResponse_Exception() throws Throwable {
         // Arrange
         MethodSignature methodSignature = Mockito.mock(MethodSignature.class);
         when(joinPoint.getSignature()).thenReturn(methodSignature);
@@ -51,7 +50,7 @@ public class LoggerAspectTest {
         when(joinPoint.proceed()).thenThrow(new RuntimeException("Test Exception"));
 
         // Act & Assert
-        assertThrows(MethodExecutionException.class, () -> loggerAspect.logRequestResponse(joinPoint));
+        assertThrows(RuntimeException.class, () -> loggerAspect.logRequestResponse(joinPoint));
         verify(joinPoint, times(1)).proceed();
     }
 
@@ -64,7 +63,7 @@ public class LoggerAspectTest {
         when(joinPoint.proceed()).thenThrow(new RuntimeException());
 
         // Act & Assert
-        assertThrows(MethodExecutionException.class, () -> loggerAspect.logRequestResponse(joinPoint));
+        assertThrows(RuntimeException.class, () -> loggerAspect.logRequestResponse(joinPoint));
         verify(joinPoint, times(1)).proceed();
     }
 

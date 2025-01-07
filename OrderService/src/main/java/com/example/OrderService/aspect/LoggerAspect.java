@@ -1,6 +1,5 @@
 package com.example.OrderService.aspect;
 
-import com.example.OrderService.exception.MethodExecutionException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -27,7 +26,7 @@ public class LoggerAspect {
     }
 
     @Around("requestLoggerMethods()")
-    public Object logRequestResponse(ProceedingJoinPoint joinPoint) throws MethodExecutionException {
+    public Object logRequestResponse(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
 
         logger.info("Executing method: {} with arguments: {}", joinPoint.getSignature(), joinPoint.getArgs());
@@ -37,7 +36,7 @@ public class LoggerAspect {
             result = joinPoint.proceed();
         } catch (Throwable throwable) {
             logger.error("Exception occurred in method: {} with cause: {}", joinPoint.getSignature(), throwable.getCause() != null ? throwable.getCause() : "NULL");
-            throw new MethodExecutionException("Error occurred while executing method: " + joinPoint.getSignature() + ". Please check the logs for more details.", throwable);
+            throw throwable; // Orijinal istisnayı yeniden fırlat
         }
 
         long timeTaken = System.currentTimeMillis() - startTime;
