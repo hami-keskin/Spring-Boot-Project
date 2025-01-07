@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: ProductService  # Config Server'dan hangi yapılandırma dosyasının çekileceğini belirtir
+  cloud:
+    config:
+      uri: http://localhost:8888  # Config Server'ın adresi
+      name: ProductService,common
+      profile: default  # Ortak yapılandırmalar için
