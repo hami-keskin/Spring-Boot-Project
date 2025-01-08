@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: EurekaServer  # Eureka Server'ın uygulama adı
+
+server:
+  port: 8761  # Eureka Server'ın çalışacağı port
+
+eureka:
+  client:
+    register-with-eureka: false  # Kendini kaydetmesini engelle
+    fetch-registry: false        # Registry'yi çekmesini engelle
+  server:
+    enable-self-preservation: true  # Üretimde true olmalı
+    wait-time-in-ms-when-sync-empty: 0  # Sync işlemi için bekleme süresi
+
+logging:
+  level:
+    com.netflix.discovery: DEBUG  # Eureka ile ilgili logları DEBUG seviyesinde göster
+    org.springframework.cloud: DEBUG  # Spring Cloud loglarını DEBUG seviyesinde göster

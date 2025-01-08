@@ -2,8 +2,4 @@ spring:
   application:
     name: EurekaServer
   profiles:
-    include: common
-logging:
-  level:
-    com.netflix.discovery: DEBUG
-    org.springframework.cloud: DEBUG
+    include: common  # common.yml dosyasını dahil et

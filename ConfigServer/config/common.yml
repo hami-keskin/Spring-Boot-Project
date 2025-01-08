@@ -10,10 +10,11 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
     show-sql: true
+
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:9999/eureka/
+      defaultZone: http://localhost:9999/eureka/  # Eureka Server'ın URL'si
   instance:
-    prefer-ip-address: true
-    instance-id: ${spring.application.name}:${random.value}
+    prefer-ip-address: true  # IP adresini kullan
+    instance-id: ${spring.application.name}:${random.value}  # Instance ID'si
