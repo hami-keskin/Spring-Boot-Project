@@ -3,7 +3,7 @@ spring:
     name: EurekaServer  # Eureka Server'ın uygulama adı
 
 server:
-  port: 8761  # Eureka Server'ın çalışacağı port
+  port: 7777  # Eureka Server'ın çalışacağı port
 
 eureka:
   client:
