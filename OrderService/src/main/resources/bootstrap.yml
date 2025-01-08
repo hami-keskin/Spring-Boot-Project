@@ -1,8 +1,0 @@
-spring:
-  application:
-    name: OrderService  # Config Server'dan hangi yapılandırma dosyasının çekileceğini belirtir
-  cloud:
-    config:
-      uri: http://localhost:8888  # Config Server'ın adresi
-      name: OrderService,common
-      profile: default  # Ortak yapılandırmalar için
