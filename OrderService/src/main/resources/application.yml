@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: OrderService
+  profiles:
+    include: common  # common.yml dosyasını dahil et
