@@ -14,7 +14,7 @@ spring:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:9999/eureka/  # Eureka Server'ın URL'si
+      defaultZone: http://localhost:3333/eureka/  # Eureka Server'ın URL'si
   instance:
     prefer-ip-address: true  # IP adresini kullan
     instance-id: ${spring.application.name}:${random.value}  # Instance ID'si

@@ -4,9 +4,4 @@ spring:
   profiles:
     include: common  # common.yml dosyasını dahil et
   config:
-    import:
-      - configserver:http://localhost:8888
-  cloud:
-    config:
-      uri: http://localhost:8888  # Config Server'ın URL'si
-      fail-fast: true  # Config Server'a bağlanamazsa uygulamanın başlatılmasını engelle
+    import: configserver:http://localhost:8888
