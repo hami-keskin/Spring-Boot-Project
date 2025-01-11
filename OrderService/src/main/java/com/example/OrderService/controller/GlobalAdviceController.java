@@ -1,6 +1,5 @@
 package com.example.OrderService.controller;
 
-import com.example.OrderService.exception.RecordNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +19,6 @@ import java.util.Map;
 @ControllerAdvice
 @Slf4j
 public class GlobalAdviceController {
-
-    @ExceptionHandler(RecordNotFoundException.class)
-    @ResponseBody
-    public ResponseEntity<String> handleRecordNotFoundException(RecordNotFoundException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseBody

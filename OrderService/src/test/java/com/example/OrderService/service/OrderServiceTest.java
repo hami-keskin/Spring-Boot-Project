@@ -2,7 +2,6 @@ package com.example.OrderService.service;
 
 import com.example.OrderService.dto.OrderDto;
 import com.example.OrderService.entity.Order;
-import com.example.OrderService.exception.RecordNotFoundException;
 import com.example.OrderService.repository.OrderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,7 +65,7 @@ public class OrderServiceTest {
     @Test
     public void testGetOrderById_OrderNotFound() {
         // Var olmayan bir Order ID'si ile getirme işlemi yapmaya çalış
-        assertThrows(RecordNotFoundException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             orderService.getOrderById(999).orElseThrow();
         });
     }
@@ -124,7 +123,7 @@ public class OrderServiceTest {
     @Test
     public void testUpdateOrder_OrderNotFound() {
         // Var olmayan bir Order ID'si ile güncelleme işlemi yapmaya çalış
-        assertThrows(RecordNotFoundException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             orderService.updateOrder(999, orderDto);
         });
     }
@@ -152,7 +151,7 @@ public class OrderServiceTest {
     @Test
     public void testDeleteOrder_OrderNotFound() {
         // Var olmayan bir Order ID'si ile silme işlemi yapmaya çalış
-        assertThrows(RecordNotFoundException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             orderService.deleteOrder(999);
         });
     }

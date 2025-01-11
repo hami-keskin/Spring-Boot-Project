@@ -6,7 +6,6 @@ import com.example.OrderService.dto.OrderDto;
 import com.example.OrderService.dto.OrderItemDto;
 import com.example.OrderService.entity.Order;
 import com.example.OrderService.entity.OrderItem;
-import com.example.OrderService.exception.RecordNotFoundException;
 import com.example.OrderService.repository.OrderItemRepository;
 import com.example.OrderService.repository.OrderRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -145,7 +144,7 @@ public class OrderItemServiceTest {
         OrderDto nonExistentOrderDto = new OrderDto();
         nonExistentOrderDto.setId(999);
 
-        assertThrows(RecordNotFoundException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             orderItemService.addOrderItem(nonExistentOrderDto, orderItemDto);
         });
     }
@@ -153,7 +152,7 @@ public class OrderItemServiceTest {
     @Test
     public void testUpdateOrderItem_OrderItemNotFound() {
         // Var olmayan bir OrderItem ID'si ile güncelleme yapmaya çalış
-        assertThrows(RecordNotFoundException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             orderItemService.updateOrderItem(orderDto, 999, orderItemDto);
         });
     }
@@ -161,7 +160,7 @@ public class OrderItemServiceTest {
     @Test
     public void testDeleteOrderItem_OrderItemNotFound() {
         // Var olmayan bir OrderItem ID'si ile silme işlemi yapmaya çalış
-        assertThrows(RecordNotFoundException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             orderItemService.deleteOrderItem(orderDto, 999);
         });
     }

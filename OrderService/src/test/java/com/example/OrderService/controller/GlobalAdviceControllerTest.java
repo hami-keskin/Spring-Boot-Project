@@ -1,6 +1,5 @@
 package com.example.OrderService.controller;
 
-import com.example.OrderService.exception.RecordNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -30,14 +29,6 @@ public class GlobalAdviceControllerTest {
         globalAdviceController = new GlobalAdviceController();
     }
 
-    @Test
-    public void testHandleRecordNotFoundException() {
-        RecordNotFoundException ex = new RecordNotFoundException("Record not found");
-        ResponseEntity<String> response = globalAdviceController.handleRecordNotFoundException(ex);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(response.getBody()).isEqualTo("Record not found");
-    }
 
     @Test
     public void testHandleIllegalArgumentException() {

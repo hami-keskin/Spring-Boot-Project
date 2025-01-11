@@ -6,7 +6,6 @@ import com.example.OrderService.dto.OrderDto;
 import com.example.OrderService.dto.OrderItemDto;
 import com.example.OrderService.entity.Order;
 import com.example.OrderService.entity.OrderItem;
-import com.example.OrderService.exception.RecordNotFoundException;
 import com.example.OrderService.repository.OrderItemRepository;
 import com.example.OrderService.repository.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +37,7 @@ public class OrderItemService {
 
         // Order'ı repository üzerinden çek
         Order order = orderRepository.findById(orderDto.getId())
-                .orElseThrow(() -> new RecordNotFoundException("Order not found with id: " + orderDto.getId()));
+                .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + orderDto.getId()));
 
         // OrderItem'ı oluştur veya güncelle
         OrderItem orderItem = findOrCreateOrderItem(order, orderItemDto);
@@ -58,7 +57,7 @@ public class OrderItemService {
 
         // Order'ı repository üzerinden çek
         Order order = orderRepository.findById(orderDto.getId())
-                .orElseThrow(() -> new RecordNotFoundException("Order not found with id: " + orderDto.getId()));
+                .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + orderDto.getId()));
 
         // OrderItem'ı repository üzerinden çek
         OrderItem orderItem = findOrderItemById(orderItemId);
@@ -82,7 +81,7 @@ public class OrderItemService {
 
         // Order'ı repository üzerinden çek
         Order order = orderRepository.findById(orderDto.getId())
-                .orElseThrow(() -> new RecordNotFoundException("Order not found with id: " + orderDto.getId()));
+                .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + orderDto.getId()));
 
         // OrderItem'ı repository üzerinden çek
         OrderItem orderItem = findOrderItemById(orderItemId);
@@ -99,7 +98,7 @@ public class OrderItemService {
 
         // Order'ı repository üzerinden çek
         Order order = orderRepository.findById(orderDto.getId())
-                .orElseThrow(() -> new RecordNotFoundException("Order not found with id: " + orderDto.getId()));
+                .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + orderDto.getId()));
 
         // OrderItem'ları DTO'ya dönüştür ve döndür
         return order.getOrderItems().stream()
@@ -116,7 +115,7 @@ public class OrderItemService {
         return orderItemRepository.findById(orderItemId)
                 .orElseThrow(() -> {
                     log.error("Order item not found with id {}", orderItemId);
-                    return new RecordNotFoundException("Order item not found with id " + orderItemId);
+                    return new IllegalArgumentException("Order item not found with id " + orderItemId);
                 });
     }
 

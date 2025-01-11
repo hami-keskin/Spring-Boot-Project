@@ -1,9 +1,7 @@
 package com.example.OrderService.service;
 
-import com.example.OrderService.annotation.RequestLogger;
 import com.example.OrderService.dto.OrderDto;
 import com.example.OrderService.entity.Order;
-import com.example.OrderService.exception.RecordNotFoundException;
 import com.example.OrderService.repository.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -18,7 +16,6 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-@RequestLogger
 public class OrderService {
 
     @Autowired
@@ -35,7 +32,7 @@ public class OrderService {
                 })
                 .or(() -> {
                     log.error("Order not found with id {}", id);
-                    throw new RecordNotFoundException("Order not found with id " + id);
+                    throw new IllegalArgumentException("Order not found with id " + id); // RecordNotFoundException yerine IllegalArgumentException
                 });
     }
 
@@ -59,7 +56,7 @@ public class OrderService {
 
         // Order'ı repository üzerinden çek
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RecordNotFoundException("Order not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + id)); // RecordNotFoundException yerine IllegalArgumentException
 
         // DTO'dan Entity'ye kopyalama
         BeanUtils.copyProperties(orderDto, order);
@@ -78,7 +75,7 @@ public class OrderService {
 
         // Order'ı repository üzerinden çek ve sil
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RecordNotFoundException("Order not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + id)); // RecordNotFoundException yerine IllegalArgumentException
         orderRepository.delete(order);
     }
 
