@@ -13,19 +13,22 @@ import org.springframework.stereotype.Component;
 public class LoggerAspect {
     private static final Logger logger = LoggerFactory.getLogger(LoggerAspect.class);
 
-    @Pointcut("@annotation(com.example.OrderService.annotation.RequestLogger)")
-    private void methodRequestLogger() {
+    // Tüm servis metodlarını hedef alan bir Pointcut tanımlayın
+    @Pointcut("execution(* com.example.OrderService.service.*.*(..))")
+    private void serviceMethods() {
     }
 
-    @Pointcut("@within(com.example.OrderService.annotation.RequestLogger)")
-    private void classRequestLogger() {
+    // Tüm controller metodlarını hedef alan bir Pointcut tanımlayın
+    @Pointcut("execution(* com.example.OrderService.controller.*.*(..))")
+    private void controllerMethods() {
     }
 
-    @Pointcut("methodRequestLogger() || classRequestLogger()")
-    private void requestLoggerMethods() {
+    // Hem servis hem de controller metodlarını hedef alan bir Pointcut
+    @Pointcut("serviceMethods() || controllerMethods()")
+    private void allMethods() {
     }
 
-    @Around("requestLoggerMethods()")
+    @Around("allMethods()")
     public Object logRequestResponse(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
 
