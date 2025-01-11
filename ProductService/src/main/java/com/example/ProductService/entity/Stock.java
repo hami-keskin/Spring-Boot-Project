@@ -14,7 +14,7 @@ public class Stock {
 
     private Integer quantity;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY) // Lazy loading eklendi
     @JoinColumn(name = "product_id")
     private Product product;
 }

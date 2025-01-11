@@ -10,19 +10,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "orders") // Tablo adını değiştirdik
-@Data // Getter, Setter, toString, equals ve hashCode oluşturur
-@NoArgsConstructor // Parametresiz constructor
-@AllArgsConstructor // Tüm alanlar için constructor
+@Table(name = "orders")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private LocalDateTime orderDate;
-    private Double totalAmount;
-    private Integer status; // Integer olarak değiştirildi
+    private Double totalAmount; // Bu alan otomatik hesaplanacak
+    private Integer status;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> orderItems = new ArrayList<>(); // Boş listeyle başlatıldı
+    private List<OrderItem> orderItems = new ArrayList<>();
+
+    // totalAmount'ı otomatik hesaplayan metot
+    public void calculateTotalAmount() {
+        this.totalAmount = orderItems.stream()
+                .mapToDouble(OrderItem::getTotalAmount)
+                .sum();
+    }
 }
