@@ -1,38 +1,48 @@
 package com.example.ProductService.service;
 
-import com.example.ProductService.annotation.RequestLogger;
 import com.example.ProductService.dto.StockDto;
 import com.example.ProductService.entity.Stock;
-import com.example.ProductService.mapper.StockMapper;
 import com.example.ProductService.repository.StockRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
-@RequestLogger
 public class StockService {
-    private final StockRepository stockRepository;
-    private final StockMapper stockMapper;
+
+    @Autowired
+    private StockRepository stockRepository;
 
     public Optional<StockDto> getStockById(Integer id) {
         return stockRepository.findById(id)
-                .map(stockMapper::toDto);
+                .map(stock -> {
+                    StockDto stockDto = new StockDto();
+                    BeanUtils.copyProperties(stock, stockDto); // Entity'den DTO'ya kopyalama
+                    return stockDto;
+                });
     }
 
     public StockDto createStock(StockDto stockDto) {
-        Stock stock = stockMapper.toEntity(stockDto);
+        Stock stock = new Stock();
+        BeanUtils.copyProperties(stockDto, stock); // DTO'dan Entity'ye kopyalama
         stock = stockRepository.save(stock);
-        return stockMapper.toDto(stock);
+
+        StockDto resultDto = new StockDto();
+        BeanUtils.copyProperties(stock, resultDto); // Entity'den DTO'ya kopyalama
+        return resultDto;
     }
 
     public StockDto updateStock(StockDto stockDto) {
-        Stock stock = stockMapper.toEntity(stockDto);
+        Stock stock = new Stock();
+        BeanUtils.copyProperties(stockDto, stock); // DTO'dan Entity'ye kopyalama
         stock = stockRepository.save(stock);
-        return stockMapper.toDto(stock);
+
+        StockDto resultDto = new StockDto();
+        BeanUtils.copyProperties(stock, resultDto); // Entity'den DTO'ya kopyalama
+        return resultDto;
     }
 
     public void deleteStock(Integer id) {

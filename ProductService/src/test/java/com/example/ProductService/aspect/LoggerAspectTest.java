@@ -1,6 +1,5 @@
 package com.example.ProductService.aspect;
 
-import com.example.ProductService.annotation.RequestLogger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.jupiter.api.BeforeEach;

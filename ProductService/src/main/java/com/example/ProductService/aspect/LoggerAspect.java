@@ -1,11 +1,9 @@
 package com.example.ProductService.aspect;
 
-import com.example.ProductService.annotation.RequestLogger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -15,23 +13,23 @@ import org.springframework.stereotype.Component;
 public class LoggerAspect {
     private static final Logger logger = LoggerFactory.getLogger(LoggerAspect.class);
 
-    // Method level @RequestLogger
-    @Pointcut("@annotation(com.example.ProductService.annotation.RequestLogger)")
-    private void methodRequestLogger() {
+    // Tüm servis metodlarını hedef alan bir Pointcut tanımlayın
+    @Pointcut("execution(* com.example.ProductService.service.*.*(..))")
+    private void serviceMethods() {
     }
 
-    // Class level @RequestLogger
-    @Pointcut("@within(com.example.ProductService.annotation.RequestLogger)")
-    private void classRequestLogger() {
+    // Tüm controller metodlarını hedef alan bir Pointcut tanımlayın
+    @Pointcut("execution(* com.example.ProductService.controller.*.*(..))")
+    private void controllerMethods() {
     }
 
-    // Combined pointcut for both method and class level
-    @Pointcut("methodRequestLogger() || classRequestLogger()")
-    private void requestLoggerMethods() {
+    // Hem servis hem de controller metodlarını hedef alan bir Pointcut
+    @Pointcut("serviceMethods() || controllerMethods()")
+    private void allMethods() {
     }
 
     // Around advice: Hedef metodun öncesinde ve sonrasında çalışır
-    @Around("requestLoggerMethods()")
+    @Around("allMethods()")
     public Object logRequestResponse(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
 

@@ -1,92 +1,164 @@
 package com.example.ProductService.service;
 
 import com.example.ProductService.dto.StockDto;
+import com.example.ProductService.entity.Product;
 import com.example.ProductService.entity.Stock;
-import com.example.ProductService.mapper.StockMapper;
 import com.example.ProductService.repository.StockRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
+@ExtendWith({SpringExtension.class, MockitoExtension.class})
 public class StockServiceTest {
 
-    @Mock
+    @MockBean
     private StockRepository stockRepository;
 
-    @Mock
-    private StockMapper stockMapper;
-
+    @Autowired
     private StockService stockService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        stockService = new StockService(stockRepository, stockMapper);
-    }
-
     @Test
-    void testGetStockById() {
+    public void testGetStockById() {
+        // Arrange
+        Product product = new Product();
+        product.setId(101); // Product nesnesi oluşturuldu
+
         Stock stock = new Stock();
-        StockDto stockDto = new StockDto();
+        stock.setId(1);
+        stock.setProduct(product); // Product nesnesi atandı
+        stock.setQuantity(50);
+
         when(stockRepository.findById(1)).thenReturn(Optional.of(stock));
-        when(stockMapper.toDto(stock)).thenReturn(stockDto);
 
+        // Act
         Optional<StockDto> result = stockService.getStockById(1);
-        assertTrue(result.isPresent());
-        assertEquals(stockDto, result.get());
+
+        // Assert
+        assertThat(result).isPresent();
+        assertThat(result.get().getId()).isEqualTo(1);
+        assertThat(result.get().getProductId()).isEqualTo(101); // Product ID kontrolü
+        assertThat(result.get().getQuantity()).isEqualTo(50);
+
+        verify(stockRepository, times(1)).findById(1);
     }
 
     @Test
-    void testCreateStock() {
-        Stock stock = new Stock();
+    public void testCreateStock() {
+        // Arrange
         StockDto stockDto = new StockDto();
-        when(stockMapper.toEntity(stockDto)).thenReturn(stock);
-        when(stockRepository.save(stock)).thenReturn(stock);
-        when(stockMapper.toDto(stock)).thenReturn(stockDto);
+        stockDto.setProductId(101); // Product ID'si
+        stockDto.setQuantity(50);
 
+        Product product = new Product();
+        product.setId(101); // Product nesnesi oluşturuldu
+
+        Stock stock = new Stock();
+        stock.setId(1);
+        stock.setProduct(product); // Product nesnesi atandı
+        stock.setQuantity(50);
+
+        when(stockRepository.save(any(Stock.class))).thenReturn(stock);
+
+        // Act
         StockDto result = stockService.createStock(stockDto);
-        assertEquals(stockDto, result);
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(1);
+        assertThat(result.getProductId()).isEqualTo(101); // Product ID kontrolü
+        assertThat(result.getQuantity()).isEqualTo(50);
+
+        verify(stockRepository, times(1)).save(any(Stock.class));
     }
 
     @Test
-    void testUpdateStock() {
-        Stock stock = new Stock();
+    public void testUpdateStock() {
+        // Arrange
         StockDto stockDto = new StockDto();
-        when(stockMapper.toEntity(stockDto)).thenReturn(stock);
-        when(stockRepository.save(stock)).thenReturn(stock);
-        when(stockMapper.toDto(stock)).thenReturn(stockDto);
+        stockDto.setId(1);
+        stockDto.setProductId(101); // Product ID'si
+        stockDto.setQuantity(100);
 
+        Product product = new Product();
+        product.setId(101); // Product nesnesi oluşturuldu
+
+        Stock stock = new Stock();
+        stock.setId(1);
+        stock.setProduct(product); // Product nesnesi atandı
+        stock.setQuantity(100);
+
+        when(stockRepository.save(any(Stock.class))).thenReturn(stock);
+
+        // Act
         StockDto result = stockService.updateStock(stockDto);
-        assertEquals(stockDto, result);
+
+        // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isEqualTo(1);
+        assertThat(result.getProductId()).isEqualTo(101); // Product ID kontrolü
+        assertThat(result.getQuantity()).isEqualTo(100);
+
+        verify(stockRepository, times(1)).save(any(Stock.class));
     }
 
     @Test
-    void testDeleteStock() {
+    public void testDeleteStock() {
+        // Arrange
         doNothing().when(stockRepository).deleteById(1);
+
+        // Act
         stockService.deleteStock(1);
+
+        // Assert
         verify(stockRepository, times(1)).deleteById(1);
     }
 
     @Test
-    void testReduceStock() {
+    public void testReduceStock() {
+        // Arrange
+        Product product = new Product();
+        product.setId(101); // Product nesnesi oluşturuldu
+
         Stock stock = new Stock();
         stock.setId(1);
-        stock.setQuantity(100);
+        stock.setProduct(product); // Product nesnesi atandı
+        stock.setQuantity(50);
 
-        when(stockRepository.findByProductIdWithLock(1)).thenReturn(Optional.of(stock));
-        when(stockRepository.save(stock)).thenReturn(stock);
+        when(stockRepository.findByProductIdWithLock(101)).thenReturn(Optional.of(stock));
 
-        stockService.reduceStock(1, 10);
+        // Act
+        stockService.reduceStock(101, 10);
 
-        assertEquals(90, stock.getQuantity());
+        // Assert
+        assertThat(stock.getQuantity()).isEqualTo(40); // 50 - 10 = 40
+        verify(stockRepository, times(1)).findByProductIdWithLock(101);
         verify(stockRepository, times(1)).save(stock);
+    }
+
+    @Test
+    public void testReduceStock_NotFound() {
+        // Arrange
+        when(stockRepository.findByProductIdWithLock(101)).thenReturn(Optional.empty());
+
+        // Act
+        stockService.reduceStock(101, 10);
+
+        // Assert
+        verify(stockRepository, times(1)).findByProductIdWithLock(101);
+        verify(stockRepository, never()).save(any(Stock.class)); // Stok bulunamadığı için save çağrılmamalı
     }
 }

@@ -1,11 +1,10 @@
 package com.example.ProductService.service;
 
-import com.example.ProductService.annotation.RequestLogger;
 import com.example.ProductService.dto.ProductDto;
 import com.example.ProductService.entity.Product;
-import com.example.ProductService.mapper.ProductMapper;
 import com.example.ProductService.repository.ProductRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -16,30 +15,41 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
-@RequestLogger
 public class ProductService {
-    private final ProductRepository productRepository;
-    private final ProductMapper productMapper;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @Cacheable("product")
     public Optional<ProductDto> getProductById(Integer id) {
         return productRepository.findById(id)
-                .map(productMapper::toDto);
+                .map(product -> {
+                    ProductDto productDto = new ProductDto();
+                    BeanUtils.copyProperties(product, productDto); // Entity'den DTO'ya kopyalama
+                    return productDto;
+                });
     }
 
     @CachePut(value = "product", key = "#result.id")
     public ProductDto createProduct(ProductDto productDto) {
-        Product product = productMapper.toEntity(productDto);
+        Product product = new Product();
+        BeanUtils.copyProperties(productDto, product); // DTO'dan Entity'ye kopyalama
         product = productRepository.save(product);
-        return productMapper.toDto(product);
+
+        ProductDto resultDto = new ProductDto();
+        BeanUtils.copyProperties(product, resultDto); // Entity'den DTO'ya kopyalama
+        return resultDto;
     }
 
     @CachePut(value = "product", key = "#productDto.id")
     public ProductDto updateProduct(ProductDto productDto) {
-        Product product = productMapper.toEntity(productDto);
+        Product product = new Product();
+        BeanUtils.copyProperties(productDto, product); // DTO'dan Entity'ye kopyalama
         product = productRepository.save(product);
-        return productMapper.toDto(product);
+
+        ProductDto resultDto = new ProductDto();
+        BeanUtils.copyProperties(product, resultDto); // Entity'den DTO'ya kopyalama
+        return resultDto;
     }
 
     @CacheEvict(value = "product", key = "#id")
@@ -51,7 +61,11 @@ public class ProductService {
     public List<ProductDto> getProductsByCatalogId(Integer catalogId) {
         return productRepository.findByCatalogId(catalogId)
                 .stream()
-                .map(productMapper::toDto)
+                .map(product -> {
+                    ProductDto productDto = new ProductDto();
+                    BeanUtils.copyProperties(product, productDto); // Entity'den DTO'ya kopyalama
+                    return productDto;
+                })
                 .collect(Collectors.toList());
     }
 }
