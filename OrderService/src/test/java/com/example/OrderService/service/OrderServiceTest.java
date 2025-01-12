@@ -55,6 +55,8 @@ public class OrderServiceTest {
         assertNotNull(result);
         assertEquals(order.getId(), result.getId());
         assertEquals(order.getTotalAmount(), result.getTotalAmount());
+        assertEquals(order.getStatus(), result.getStatus());
+        assertEquals(order.getOrderDate(), result.getOrderDate());
 
         // Cache'den doğru verinin alındığını doğrula
         OrderDto cachedOrder = cacheManager.getCache("order").get(1, OrderDto.class);
@@ -78,10 +80,15 @@ public class OrderServiceTest {
         // Sonuçları doğrula
         assertNotNull(result);
         assertEquals(orderDto.getTotalAmount(), result.getTotalAmount());
+        assertEquals(1, result.getStatus()); // Varsayılan status değeri
+        assertNotNull(result.getOrderDate()); // Sipariş tarihi otomatik olarak atanmalı
 
         // Order'ın repository'de kaydedildiğini doğrula
         Order savedOrder = orderRepository.findById(result.getId()).orElseThrow();
         assertEquals(result.getId(), savedOrder.getId());
+        assertEquals(result.getTotalAmount(), savedOrder.getTotalAmount());
+        assertEquals(result.getStatus(), savedOrder.getStatus());
+        assertEquals(result.getOrderDate(), savedOrder.getOrderDate());
 
         // Cache'den doğru verinin alındığını doğrula
         OrderDto cachedOrder = cacheManager.getCache("order").get(result.getId(), OrderDto.class);
@@ -103,16 +110,21 @@ public class OrderServiceTest {
         OrderDto updatedOrderDto = new OrderDto();
         updatedOrderDto.setId(1);
         updatedOrderDto.setTotalAmount(200.0);
+        updatedOrderDto.setStatus(2); // Yeni status değeri
 
         OrderDto result = orderService.updateOrder(1, updatedOrderDto);
 
         // Sonuçları doğrula
         assertNotNull(result);
         assertEquals(updatedOrderDto.getTotalAmount(), result.getTotalAmount());
+        assertEquals(updatedOrderDto.getStatus(), result.getStatus()); // Status güncellenmeli
+        assertEquals(order.getOrderDate(), result.getOrderDate()); // Sipariş tarihi değişmemeli
 
         // Order'ın repository'de güncellendiğini doğrula
         Order updatedOrder = orderRepository.findById(result.getId()).orElseThrow();
         assertEquals(result.getTotalAmount(), updatedOrder.getTotalAmount());
+        assertEquals(result.getStatus(), updatedOrder.getStatus());
+        assertEquals(result.getOrderDate(), updatedOrder.getOrderDate());
 
         // Cache'den doğru verinin alındığını doğrula
         OrderDto cachedOrder = cacheManager.getCache("order").get(result.getId(), OrderDto.class);

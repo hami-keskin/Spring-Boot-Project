@@ -43,8 +43,14 @@ public class OrderService {
     public OrderDto createOrder(OrderDto orderDto) {
         log.info("Creating order: {}", orderDto);
 
-        // Order entity'sini oluştur ve kaydet
-        Order order = createOrderFromDto(orderDto);
+        // Order entity'sini oluştur ve varsayılan değerleri ata
+        Order order = new Order();
+        BeanUtils.copyProperties(orderDto, order); // DTO'dan Entity'ye kopyalama
+        order.setOrderDate(LocalDateTime.now()); // Sipariş tarihi şu anki zaman olarak ayarlanır
+        order.setStatus(1); // Varsayılan durum (örneğin, "Yeni Sipariş")
+        order.setTotalAmount(0.0); // Başlangıçta toplam tutar 0
+
+        // Order'ı kaydet
         order = orderRepository.save(order);
 
         // DTO'ya dönüştür ve döndür
@@ -65,6 +71,8 @@ public class OrderService {
         // DTO'dan Entity'ye kopyalama
         BeanUtils.copyProperties(orderDto, order);
         order.setId(id); // ID'yi güncelle
+
+        // Order'ı kaydet
         order = orderRepository.save(order);
 
         // DTO'ya dönüştür ve döndür
@@ -82,14 +90,5 @@ public class OrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + id));
         orderRepository.delete(order);
-    }
-
-    private Order createOrderFromDto(OrderDto orderDto) {
-        Order order = new Order();
-        order.setOrderDate(LocalDateTime.now());
-        order.setStatus(1); // Varsayılan durum
-        order.setTotalAmount(0.0); // Başlangıçta toplam tutar 0
-        BeanUtils.copyProperties(orderDto, order); // DTO'dan Entity'ye kopyalama
-        return order;
     }
 }
