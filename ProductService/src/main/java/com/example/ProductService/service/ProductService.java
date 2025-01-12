@@ -26,6 +26,7 @@ public class ProductService {
                 .map(product -> {
                     ProductDto productDto = new ProductDto();
                     BeanUtils.copyProperties(product, productDto); // Entity'den DTO'ya kopyalama
+                    productDto.setCatalogId(product.getCatalog().getId()); // Catalog ID'yi DTO'ya set et
                     return productDto;
                 });
     }
@@ -38,6 +39,7 @@ public class ProductService {
 
         ProductDto resultDto = new ProductDto();
         BeanUtils.copyProperties(product, resultDto); // Entity'den DTO'ya kopyalama
+        resultDto.setCatalogId(product.getCatalog().getId()); // Catalog ID'yi DTO'ya set et
         return resultDto;
     }
 
@@ -49,6 +51,7 @@ public class ProductService {
 
         ProductDto resultDto = new ProductDto();
         BeanUtils.copyProperties(product, resultDto); // Entity'den DTO'ya kopyalama
+        resultDto.setCatalogId(product.getCatalog().getId()); // Catalog ID'yi DTO'ya set et
         return resultDto;
     }
 
@@ -64,6 +67,7 @@ public class ProductService {
                 .map(product -> {
                     ProductDto productDto = new ProductDto();
                     BeanUtils.copyProperties(product, productDto); // Entity'den DTO'ya kopyalama
+                    productDto.setCatalogId(product.getCatalog().getId()); // Catalog ID'yi DTO'ya set et
                     return productDto;
                 })
                 .collect(Collectors.toList());

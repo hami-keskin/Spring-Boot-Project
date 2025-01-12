@@ -10,6 +10,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -22,6 +23,7 @@ public class OrderService {
     private OrderRepository orderRepository;
 
     @Cacheable("order")
+    @Transactional(readOnly = true)
     public Optional<OrderDto> getOrderById(Integer id) {
         log.info("Getting order by id: {}", id);
         return orderRepository.findById(id)
@@ -32,11 +34,12 @@ public class OrderService {
                 })
                 .or(() -> {
                     log.error("Order not found with id {}", id);
-                    throw new IllegalArgumentException("Order not found with id " + id); // RecordNotFoundException yerine IllegalArgumentException
+                    throw new IllegalArgumentException("Order not found with id " + id);
                 });
     }
 
     @CachePut(value = "order", key = "#result.id")
+    @Transactional
     public OrderDto createOrder(OrderDto orderDto) {
         log.info("Creating order: {}", orderDto);
 
@@ -51,12 +54,13 @@ public class OrderService {
     }
 
     @CachePut(value = "order", key = "#orderDto.id")
+    @Transactional
     public OrderDto updateOrder(Integer id, OrderDto orderDto) {
         log.info("Updating order with id: {}", id);
 
         // Order'ı repository üzerinden çek
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + id)); // RecordNotFoundException yerine IllegalArgumentException
+                .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + id));
 
         // DTO'dan Entity'ye kopyalama
         BeanUtils.copyProperties(orderDto, order);
@@ -70,20 +74,21 @@ public class OrderService {
     }
 
     @CacheEvict(value = "order", key = "#id")
+    @Transactional
     public void deleteOrder(Integer id) {
         log.info("Deleting order with id: {}", id);
 
         // Order'ı repository üzerinden çek ve sil
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + id)); // RecordNotFoundException yerine IllegalArgumentException
+                .orElseThrow(() -> new IllegalArgumentException("Order not found with id: " + id));
         orderRepository.delete(order);
     }
 
     private Order createOrderFromDto(OrderDto orderDto) {
         Order order = new Order();
         order.setOrderDate(LocalDateTime.now());
-        order.setStatus(1);
-        order.setTotalAmount(0.0);
+        order.setStatus(1); // Varsayılan durum
+        order.setTotalAmount(0.0); // Başlangıçta toplam tutar 0
         BeanUtils.copyProperties(orderDto, order); // DTO'dan Entity'ye kopyalama
         return order;
     }
